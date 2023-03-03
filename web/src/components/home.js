@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Navigate } from "react-router-dom";
 import { withRouter } from "../services/common";
 import axios from 'axios';
-import ReactPaginate from "https://cdn.skypack.dev/react-paginate@7.1.3";
+import ReactPaginate from "react-paginate";
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
