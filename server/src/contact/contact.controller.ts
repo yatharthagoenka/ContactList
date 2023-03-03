@@ -1,22 +1,40 @@
 import { Controller, Get, Res, HttpStatus, Param, NotFoundException, Post, Body, Put, Query, Delete, UseGuards } from '@nestjs/common';
 import { ContactService } from './contact.service';
+import { AuthService } from '../authentication/auth.service';
 import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
 import { CreateContactDTO } from './dto/contact.dto';
 import { ValidateObjectId } from './shared/pipes/validate-object-id.pipes';
+import { UserService } from 'src/user/user.service';
     
 @Controller('contact')
 
 export class ContactController {
-    constructor(private contactService: ContactService) {}
+    constructor(
+        private contactService: ContactService, 
+        private userService: UserService,
+    ) {}
 
     @Post('/add')
     @UseGuards(AuthGuard("jwt"))
     async addContact(@Res() res, @Body() createContactDTO: CreateContactDTO) {
-        const newContact = await this.contactService.addContact(createContactDTO);
-        return res.status(HttpStatus.OK).json({
-            message: 'Contact has been created successfully!',
-            contact: newContact,
-        });
+        const user = (await this.userService.findById(createContactDTO.user));
+        if (!user) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                message: `The user with id ${createContactDTO.user} does not exist.`
+            });
+        } 
+        try{
+            const newContact = await this.contactService.addContact(createContactDTO);
+            return res.status(HttpStatus.OK).json({
+                message: 'Contact has been created successfully!',
+                contact: newContact,
+            });
+        }catch{
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                message: 'Contact already exists!'
+            });
+        }
+        
     }
     
     @Get('contact/:contactID')

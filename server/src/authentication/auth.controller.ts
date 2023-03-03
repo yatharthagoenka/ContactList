@@ -1,17 +1,18 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { RegisterDTO } from './dto/register.dto';
+import { RegisterDTO, LoginDTO } from './dto/auth.dto';
 import { AuthService } from './auth.service';
-import { LoginDTO } from './dto/login.dto';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(
-        private authService: AuthService,
-      ) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+  ) {}
 
     @Post('register')
     async register(@Body() registerDTO: RegisterDTO) {
-        const user = await this.authService.create(registerDTO);
+        const user = await this.userService.create(registerDTO);
         const payload = {
             email: user.email,
         };
@@ -22,7 +23,7 @@ export class AuthController {
     
     @Post('login')
     async login(@Body() loginDTO: LoginDTO) {
-      const user = await this.authService.findByLogin(loginDTO);
+      const user = await this.userService.findByLogin(loginDTO);
       const payload = {
         email: user.email,
       };
