@@ -30,17 +30,17 @@ class Home extends Component {
     const name = document.getElementById("newContactName").value;
     const phone = parseInt(document.getElementById("newContactPhone").value);
     const newContact = {user: userID, name: name, phone: phone}
-    console.log(newContact)
+    // console.log(newContact)
     axios.post(API_URL + 'contact/add', newContact, {
       headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem("user")).token}` }
     })
     .then(res => {
         this.setState(prevState => ({
-          contacts: [...prevState.contacts, newContact]
-        })).then(() => {
-          // this.setState({currentItems: this.state.contacts.slice(newOffset, newOffset + this.state.itemsPerPage)});
-        })
-        console.log(res)
+          contacts: [...prevState.contacts, newContact],
+          pageCount: Math.ceil((prevState.contacts.length + 1) / this.state.itemsPerPage)
+        }), () => {
+          this.handlePageClick({selected: Math.floor((this.state.contacts.length + 1) / this.state.itemsPerPage)});
+        });
     }).catch(err => { 
        console.log(err)
     })
@@ -54,7 +54,12 @@ class Home extends Component {
       }
     )
     .then(res => {  
-        console.log(res)
+        const updatedContacts = this.state.contacts.filter(contact => contact._id !== id);
+        this.setState({
+          contacts: updatedContacts,
+          currentItems: updatedContacts.slice(this.state.itemOffset, this.state.itemOffset + this.state.itemsPerPage),
+          pageCount: Math.ceil(updatedContacts.length / this.state.itemsPerPage)
+        });
     }).catch(err => { 
        console.log(err)
     })
@@ -104,14 +109,14 @@ class Home extends Component {
     return (
       <div className="container">
         <h1>Home Page</h1>
-        <Form className="mb-4 square border border-success p-3 w-50">
+        <Form className="mb-4 square border border-success p-3 w-50" onSubmit={this.handleCreate}>
           <Form.Group className="mb-3" controlId="newContactName">
             <Form.Label>Name</Form.Label>
             <Form.Control type="name" placeholder="Enter name" />
           </Form.Group>
           <Form.Group className="mb-3" controlId="newContactPhone">
             <Form.Label>Phone</Form.Label>
-            <Form.Control type="phone" placeholder="Mobile number" />
+            <Form.Control type="phone" pattern="[0-9]{10}" placeholder="Mobile number"/>
           </Form.Group>
           <Button variant="primary" onClick={(e)=>this.createContact(e)}>
             Create
