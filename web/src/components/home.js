@@ -75,6 +75,7 @@ class Home extends Component {
       name: document.getElementById("editContactName").value,
       phone: document.getElementById("editContactPhone").value
     };
+    // console.log(updatedContact)
     axios.put(API_URL + 'contact/edit', updatedContact, {
       params: {contactID: this.state.contactToEdit.id},
       headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem("user")).token}` }
