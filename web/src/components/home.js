@@ -6,6 +6,7 @@ import ReactPaginate from "https://cdn.skypack.dev/react-paginate@7.1.3";
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { Modal } from 'react-bootstrap';
 
 const API_URL = 'http://localhost:3000/';
 
@@ -22,6 +23,8 @@ class Home extends Component {
       currentItems: [],
       currentUser: { email: "" },
       newContact: {name: "", phone: ""},
+      contactToEdit: {id: "", name: "", phone: ""},
+      modalShow: false,
     };
   }
 
@@ -44,6 +47,39 @@ class Home extends Component {
     }).catch(err => { 
        console.log(err)
     })
+  }
+
+  openModal = (contact) => {
+    // console.log(contact._id)
+    this.setState({ contactToEdit: {id: contact._id, name: contact.name, phone: contact.phone} });
+    this.setState({ modalShow: true });
+  }
+
+  closeModal = () => {
+    this.setState({ contactToEdit: {name: "", phone: ""} });
+    this.setState({ modalShow: false });
+  }
+
+  updateContact = () => {
+    const updatedContact = {
+      user: JSON.parse(localStorage.getItem("user")).id,
+      name: document.getElementById("editContactName").value,
+      phone: document.getElementById("editContactPhone").value
+    };
+    axios.put(API_URL + 'contact/edit', updatedContact, {
+      params: {contactID: this.state.contactToEdit.id},
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem("user")).token}` }
+    })
+    .then(res => {
+      const updatedContacts = [...this.state.contacts];
+      const index = updatedContacts.findIndex(c => c.id === updatedContact.id);
+      updatedContacts[index] = updatedContact;
+      this.setState({ contacts: updatedContacts });
+      this.closeModal();
+    })
+    .catch(err => { 
+      console.log(err)
+    });
   }
 
   deleteContact = (id) => {
@@ -108,6 +144,28 @@ class Home extends Component {
     }
     return (
       <div className="container">
+        <Modal show={this.state.modalShow} onHide={this.closeModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Contact</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group controlId="editContactName">
+                <Form.Label>Name</Form.Label>
+                <Form.Control type="text" defaultValue={this.state.contactToEdit.name} />
+              </Form.Group>
+              <Form.Group controlId="editContactPhone">
+                <Form.Label>Phone</Form.Label>
+                <Form.Control type="text" defaultValue={this.state.contactToEdit.phone} />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.closeModal}>Close</Button>
+            <Button variant="primary" onClick={this.updateContact}>Save changes</Button>
+          </Modal.Footer>
+        </Modal>
+
         <h1>Home Page</h1>
         <Form className="mb-4 square border border-success p-3 w-50" onSubmit={this.handleCreate}>
           <Form.Group className="mb-3" controlId="newContactName">
@@ -116,7 +174,7 @@ class Home extends Component {
           </Form.Group>
           <Form.Group className="mb-3" controlId="newContactPhone">
             <Form.Label>Phone</Form.Label>
-            <Form.Control type="phone" pattern="[0-9]{10}" placeholder="Mobile number"/>
+            <Form.Control type="text" pattern="[0-9]{10}" placeholder="Mobile number"/>
           </Form.Group>
           <Button variant="primary" onClick={(e)=>this.createContact(e)}>
             Create
@@ -135,7 +193,7 @@ class Home extends Component {
             <tr>
               <td>{item.name}</td>
               <td>{item.phone}</td>
-              <td className="d-flex justify-content-around"><Button variant="warning">Edit</Button> <Button variant="danger" onClick={()=>this.deleteContact(item._id)}>Delete</Button></td>
+              <td className="d-flex justify-content-around"><Button variant="warning" onClick={() => this.openModal(item)}>Edit</Button> <Button variant="danger" onClick={()=>this.deleteContact(item._id)}>Delete</Button></td>
             </tr>
           ))}
           </tbody>
