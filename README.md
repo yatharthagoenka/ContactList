@@ -1,5 +1,10 @@
 # ContactList
 
+- [Backend deployment domain](https://contactlist-production-c316.up.railway.app/)
+- [Front deployment domain](https://contactlist-web-production.up.railway.app/login)
+
+</br>
+
 <img alt="NestJS" src="https://img.shields.io/badge/NestJS-•-brown" /> <img alt="Typescript" src="https://img.shields.io/badge/Typescript-•-pink" />
 <img alt="ReactJS" src="https://img.shields.io/badge/ReactJS-•-red" /> <img alt="JS" src="https://img.shields.io/badge/JS-•-blue" /> <img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-•-green" /> <img alt="PASSPORT" src="https://img.shields.io/badge/PASSPORT-•-yellow" /> <img alt="Axios" src="https://img.shields.io/badge/Axios-•-orange" /> <img alt="JWT" src="https://img.shields.io/badge/JWT-•-peach" />  <img alt="CSS" src="https://img.shields.io/badge/Bootstrap-•-black" /> 
 
