@@ -4,6 +4,7 @@ import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { withRouter } from '../services/common';
 import axios from 'axios';
+import { API_URL } from '../services/common.js';
 
 const required = value => {
   if (!value) {
@@ -14,8 +15,6 @@ const required = value => {
     );
   }
 };
-
-const API_URL = "http://localhost:3000/auth/";
 
 class Login extends Component {
   constructor(props) {
@@ -34,7 +33,7 @@ class Login extends Component {
 
   login(email, password) {
     return axios
-      .post(API_URL + "login", {
+      .post(API_URL + "auth/login", {
         email,
         password
       })

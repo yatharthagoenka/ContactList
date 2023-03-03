@@ -5,6 +5,7 @@ import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 import { withRouter } from '../services/common';
 import axios from 'axios';
+import { API_URL } from '../services/common.js';
 
 const required = value => {
   if (!value) {
@@ -36,8 +37,6 @@ const vpassword = value => {
   }
 };
 
-const API_URL = "http://localhost:3000/auth/";
-
 class Register extends Component {
   constructor(props) {
     super(props);
@@ -54,7 +53,7 @@ class Register extends Component {
   }
 
   register(email, password) {
-    return axios.post(API_URL + "register", {
+    return axios.post(API_URL + "auth/register", {
       email,
       password
     });

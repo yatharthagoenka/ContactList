@@ -7,8 +7,7 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Modal } from 'react-bootstrap';
-
-const API_URL = 'http://localhost:3000/';
+import { API_URL } from '../services/common.js';
 
 class Home extends Component {
   constructor(props) {
