@@ -22,9 +22,10 @@ class Home extends Component {
       contacts: [],
       currentItems: [],
       currentUser: { email: "" },
-      newContact: {name: "", phone: ""},
+      newContact: {id:"", name: "", phone: ""},
       contactToEdit: {id: "", name: "", phone: ""},
-      modalShow: false,
+      showEditModal: false,
+      showCreateModal: false,
     };
   }
 
@@ -49,15 +50,23 @@ class Home extends Component {
     })
   }
 
-  openModal = (contact) => {
+  openCreateModal = () => {
+    this.setState({ showCreateModal: true });
+  }
+  
+  openEditModal = (contact) => {
     // console.log(contact._id)
     this.setState({ contactToEdit: {id: contact._id, name: contact.name, phone: contact.phone} });
-    this.setState({ modalShow: true });
+    this.setState({ showEditModal: true });
   }
 
-  closeModal = () => {
+  closeEditModal = () => {
     this.setState({ contactToEdit: {name: "", phone: ""} });
-    this.setState({ modalShow: false });
+    this.setState({ showEditModal: false });
+  }
+
+  closeCreateModal = () => {
+    this.setState({ showCreateModal: false });
   }
 
   updateContact = () => {
@@ -75,7 +84,7 @@ class Home extends Component {
       const index = updatedContacts.findIndex(c => c.id === updatedContact.id);
       updatedContacts[index] = updatedContact;
       this.setState({ contacts: updatedContacts });
-      this.closeModal();
+      this.closeEditModal();
     })
     .catch(err => { 
       console.log(err)
@@ -144,7 +153,29 @@ class Home extends Component {
     }
     return (
       <div className="container">
-        <Modal show={this.state.modalShow} onHide={this.closeModal}>
+        <Modal show={this.state.showCreateModal} onHide={this.closeCreateModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Add Contact</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group controlId="newContactName">
+                <Form.Label>Name</Form.Label>
+                <Form.Control type="text" defaultValue={this.state.newContact.name} />
+              </Form.Group>
+              <Form.Group controlId="newContactPhone">
+                <Form.Label>Phone</Form.Label>
+                <Form.Control type="text" defaultValue={this.state.newContact.phone} />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.closeCreateModal}>Close</Button>
+            <Button variant="primary"onClick={(e)=>this.createContact(e)}>Create new</Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={this.state.showEditModal} onHide={this.closeEditModal}>
           <Modal.Header closeButton>
             <Modal.Title>Edit Contact</Modal.Title>
           </Modal.Header>
@@ -161,25 +192,13 @@ class Home extends Component {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={this.closeModal}>Close</Button>
+            <Button variant="secondary" onClick={this.closeEditModal}>Close</Button>
             <Button variant="primary" onClick={this.updateContact}>Save changes</Button>
           </Modal.Footer>
         </Modal>
 
         <h1>Home Page</h1>
-        <Form className="mb-4 square border border-success p-3 w-50" onSubmit={this.handleCreate}>
-          <Form.Group className="mb-3" controlId="newContactName">
-            <Form.Label>Name</Form.Label>
-            <Form.Control type="name" placeholder="Enter name" />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="newContactPhone">
-            <Form.Label>Phone</Form.Label>
-            <Form.Control type="text" pattern="[0-9]{10}" placeholder="Mobile number"/>
-          </Form.Group>
-          <Button variant="primary" onClick={(e)=>this.createContact(e)}>
-            Create
-          </Button>
-        </Form>
+        <Button variant="success my-3" onClick={() => this.openCreateModal()}>Add +</Button>
         <Table striped bordered hover size="sm">
           <thead>
             <tr>
@@ -193,7 +212,7 @@ class Home extends Component {
             <tr>
               <td>{item.name}</td>
               <td>{item.phone}</td>
-              <td className="d-flex justify-content-around"><Button variant="warning" onClick={() => this.openModal(item)}>Edit</Button> <Button variant="danger" onClick={()=>this.deleteContact(item._id)}>Delete</Button></td>
+              <td className="d-flex justify-content-around"><Button variant="warning" onClick={() => this.openEditModal(item)}>Edit</Button> <Button variant="danger" onClick={()=>this.deleteContact(item._id)}>Delete</Button></td>
             </tr>
           ))}
           </tbody>
