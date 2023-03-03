@@ -40,7 +40,11 @@ class Login extends Component {
       })
       .then(response => {
         if (response.data.token) {
-          localStorage.setItem("user", JSON.stringify(response.data));
+          const user = {
+            id: response.data.user._id,
+            token: response.data.token,
+          }
+          localStorage.setItem("user", JSON.stringify(user));
         }
 
         return response.data;
@@ -72,7 +76,7 @@ class Login extends Component {
     if (this.checkBtn.context._errors.length === 0) {
       this.login(this.state.email, this.state.password).then(
         () => {
-          this.props.router.navigate("/home");
+          this.props.router.navigate("/");
           window.location.reload();
         },
         error => {

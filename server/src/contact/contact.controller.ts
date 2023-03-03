@@ -7,7 +7,6 @@ import { ValidateObjectId } from './shared/pipes/validate-object-id.pipes';
 import { UserService } from 'src/user/user.service';
     
 @Controller('contact')
-
 export class ContactController {
     constructor(
         private contactService: ContactService, 
@@ -47,8 +46,16 @@ export class ContactController {
     }
 
     @Get('/all')
+    @UseGuards(AuthGuard("jwt"))
     async getContacts(@Res() res) {
         const contacts = await this.contactService.getContacts();
+        return res.status(HttpStatus.OK).json(contacts);
+    }
+
+    @Get('/userContacts')
+    @UseGuards(AuthGuard("jwt"))
+    async getUserContacts(@Res() res, @Query('userID', new ValidateObjectId()) userID) {
+        const contacts = await this.contactService.getUserContacts(userID);
         return res.status(HttpStatus.OK).json(contacts);
     }
 

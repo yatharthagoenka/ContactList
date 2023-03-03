@@ -87,9 +87,17 @@ class Register extends Component {
         this.state.email,
         this.state.password
       ).then(
-        () => {
-          this.props.router.navigate("/home");
+        (response) => {
+          if (response.data.token) {
+            const user = {
+              id: response.data.user._id,
+              token: response.data.token,
+            }
+            localStorage.setItem("user", JSON.stringify(user));
+          }
+          this.props.router.navigate("/");
           window.location.reload();
+          return response.data;
         },
         error => {
           const resMessage =

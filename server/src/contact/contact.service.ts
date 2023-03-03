@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Contact } from './interfaces/contact.interface';
 import { CreateContactDTO } from './dto/contact.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class ContactService {
@@ -21,6 +22,11 @@ export class ContactService {
         
     async getContacts(): Promise<Contact[]> {
         const Contacts = await this.contactModel.find().exec();
+        return Contacts;
+    }
+        
+    async getUserContacts(userID): Promise<Contact[]> {
+        const Contacts = await this.contactModel.find({user: userID}).exec();
         return Contacts;
     }
 
