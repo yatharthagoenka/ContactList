@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
+import { Navigate } from "react-router-dom";
 import { isEmail } from "validator";
 import { withRouter } from '../services/common';
 import axios from 'axios';
@@ -27,6 +28,16 @@ const email = value => {
   }
 };
 
+const role = value => {
+  if (value!=="user" && value!=="admin") {
+    return (
+      <div className="alert alert-danger" role="alert">
+        This is not a valid role.
+      </div>
+    );
+  }
+};
+
 const vpassword = value => {
   if (value.length < 3 || value.length > 40) {
     return (
@@ -43,20 +54,30 @@ class Register extends Component {
     this.handleRegister = this.handleRegister.bind(this);
     this.onChangeEmail = this.onChangeEmail.bind(this);
     this.onChangePassword = this.onChangePassword.bind(this);
+    this.onChangeRole = this.onChangeRole.bind(this);
 
     this.state = {
       email: "",
       password: "",
+      role: "",
       successful: false,
-      message: ""
+      message: "",
+      redirect: "",
+      showAdminPages: false,
+      currentUser: undefined,
     };
   }
 
-  register(email, password) {
-    return axios.post(API_URL + "auth/register", {
+  register(email, password, role) {
+    console.log(role)
+    return axios.post(API_URL + "auth/register",
+    {
       email,
-      password
-    });
+      password,
+      role
+    }, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem("user")).token}` }
+    })
   }
 
   onChangeEmail(e) {
@@ -68,6 +89,12 @@ class Register extends Component {
   onChangePassword(e) {
     this.setState({
       password: e.target.value
+    });
+  }
+
+  onChangeRole(e) {
+    this.setState({
+      role: e.target.value
     });
   }
 
@@ -84,15 +111,15 @@ class Register extends Component {
     if (this.checkBtn.context._errors.length === 0) {
       this.register(
         this.state.email,
-        this.state.password
+        this.state.password,
+        this.state.role
       ).then(
         (response) => {
           if (response.data.token) {
-            const user = {
-              id: response.data.user._id,
-              token: response.data.token,
-            }
-            localStorage.setItem("user", JSON.stringify(user));
+            // const user = {
+            //   id: response.data.user._id
+            // }
+            // localStorage.setItem("user", JSON.stringify(user));
           }
           this.props.router.navigate("/");
           window.location.reload();
@@ -115,7 +142,24 @@ class Register extends Component {
     }
   }
 
+  componentDidMount() {
+    if(!localStorage.getItem('user')) {this.setState({ redirect: "/" });}
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      this.setState({
+        showAdminPages: user.role.includes("admin"),
+        currentUser: user,
+      });
+      // console.log(user);
+    }
+
+    if (!user || user.role.includes("user")) this.setState({ redirect: "/" });
+  }
+
   render() {
+    if (this.state.redirect) {
+      return <Navigate to={this.state.redirect} />
+    }
     return (
       <div className="col-md-12">
         <div className="card card-container px-3 py-5">
@@ -151,6 +195,18 @@ class Register extends Component {
                     value={this.state.password}
                     onChange={this.onChangePassword}
                     validations={[required, vpassword]}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="role">Role</label>
+                  <Input
+                    type="text"
+                    className="form-control"
+                    name="role"
+                    value={this.state.role}
+                    onChange={this.onChangeRole}
+                    validations={[required, role]}
                   />
                 </div>
 

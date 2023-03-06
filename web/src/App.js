@@ -5,6 +5,7 @@ import "./App.css";
 import Login from "./components/login";
 import Register from "./components/register";
 import Home from "./components/home";
+import UserPage from "./components/userPage";
 
 const eventBus = {
   on(event, callback) {
@@ -24,17 +25,21 @@ class App extends Component {
     this.logOut = this.logOut.bind(this);
 
     this.state = {
+      showUserBoard: false,
+      showAdminPages: false,
       currentUser: undefined,
     };
   }
 
   componentDidMount() {
     const user = JSON.parse(localStorage.getItem('user'));
-
     if (user) {
       this.setState({
+        showUserBoard: user.role.includes("user"),
+        showAdminPages: user.role.includes("admin"),
         currentUser: user,
       });
+      // console.log(user);
     }
     
     eventBus.on("logout", () => {
@@ -54,8 +59,7 @@ class App extends Component {
   }
 
   render() {
-    const { currentUser } = this.state;
-
+    const { currentUser, showAdminPages } = this.state;
     return (
       <div>
         <nav className="navbar navbar-expand navbar-dark bg-dark">
@@ -66,6 +70,14 @@ class App extends Component {
 
           {currentUser ? (
             <div className="navbar-nav mr-auto">
+              {showAdminPages ? (
+                <li className="nav-item">
+                  <Link to={"/register"} className="nav-link">
+                    Add user
+                  </Link>
+                </li>
+              ) : (<></>)}
+
               <li className="nav-item">
                 <a href="/login" className="nav-link" onClick={this.logOut}>
                   Logout
@@ -79,12 +91,6 @@ class App extends Component {
                   Login
                 </Link>
               </li>
-
-              <li className="nav-item">
-                <Link to={"/register"} className="nav-link">
-                  Sign Up
-                </Link>
-              </li>
             </div>
           )}
         </nav>
@@ -92,6 +98,7 @@ class App extends Component {
         <div className="container mt-3">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/user" element={<UserPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>

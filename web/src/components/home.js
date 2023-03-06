@@ -117,11 +117,15 @@ class Home extends Component {
   };
 
   componentDidMount() {
-    const currentUser = JSON.parse(localStorage.getItem('user'));;
-
-    if (!currentUser) this.setState({ redirect: "/login" });
-    this.setState({ currentUser: currentUser, userReady: true })
-
+    if(!localStorage.getItem('user')) {this.setState({ redirect: "/login" });return;}
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    this.setState({ 
+      currentUser: currentUser, 
+      userReady: true 
+    })
+    
+    if (!currentUser || currentUser.role.includes("user")) this.setState({ redirect: "/login" });
+    
     const endOffset = this.state.itemOffset + this.state.itemsPerPage;
     
     axios.get(API_URL + 'contact/userContacts',{

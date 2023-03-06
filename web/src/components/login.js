@@ -27,6 +27,7 @@ class Login extends Component {
       email: "",
       password: "",
       loading: false,
+      role: "",
       message: ""
     };
   }
@@ -41,13 +42,15 @@ class Login extends Component {
         if (response.data.token) {
           const user = {
             id: response.data.user._id,
+            role: response.data.user.role,
             token: response.data.token,
           }
+          const role = response.data.user.role;
+          console.log(role)
           localStorage.setItem("user", JSON.stringify(user));
         }
-
         return response.data;
-      });
+      }); 
   }
 
   onChangeEmail(e) {
