@@ -124,7 +124,7 @@ class Home extends Component {
       userReady: true 
     })
     
-    if (!currentUser || currentUser.role.includes("user")) this.setState({ redirect: "/login" });
+    if (!currentUser || currentUser.role.includes("user")) this.setState({ redirect: "/user" });
     
     const endOffset = this.state.itemOffset + this.state.itemsPerPage;
     
