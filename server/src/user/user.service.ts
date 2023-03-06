@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { LoginDTO, RegisterDTO } from '../authentication/dto/auth.dto';
 import { Payload } from '../authentication/interface/payload.interface';
-import { User } from '../authentication/interface/user.interface';
+import { User } from '../authentication/interface/interfaces';
 import * as mongoose from 'mongoose';
 
 @Injectable()
@@ -19,20 +19,19 @@ export class UserService {
             throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
         }
         const createdUser = new this.userModel(registerDTO);
-        await createdUser.save();
-        return this.sanitizeUser(createdUser);
+        return await createdUser.save();
     }
 
     async findByLogin(UserDTO: LoginDTO) {
         const { email, password } = UserDTO;
         const user = await this.userModel
           .findOne({ email })
-          .select('email password');
+          .select('email password role');
         if (!user) {
           throw new HttpException('User does not exists', HttpStatus.BAD_REQUEST);
         }
         if (await bcrypt.compare(password, user.password)) {
-          return this.sanitizeUser(user)
+          return user
         } else {
           throw new HttpException('Invalid credentials. Try again', HttpStatus.BAD_REQUEST);
         }
@@ -46,11 +45,5 @@ export class UserService {
     async findByPayload(payload: Payload) {
         const { email } = payload;
         return await this.userModel.findOne({ email });
-    }
-
-    sanitizeUser(user: User) {
-        const sanitized = user.toObject();
-        delete sanitized['password'];
-        return sanitized;
     }
 }

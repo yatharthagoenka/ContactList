@@ -1,7 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { RegisterDTO, LoginDTO } from './dto/auth.dto';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
+import { Role } from "./interface/interfaces";
+import { Roles } from "./decorator";
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from './guard';
 
 @Controller('auth')
 export class AuthController {
@@ -10,7 +14,16 @@ export class AuthController {
     private authService: AuthService,
   ) {}
 
+    @Get('/protected')
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @Roles(Role.ADMIN)
+    async testRoute() {
+        return {message: "Accessed by admin"};
+    }
+
     @Post('register')
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @Roles(Role.ADMIN)
     async register(@Body() registerDTO: RegisterDTO) {
         const user = await this.userService.create(registerDTO);
         const payload = {
