@@ -35,11 +35,16 @@ class App extends Component {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
       this.setState({
-        showUserBoard: user.role.includes("user"),
-        showAdminPages: user.role.includes("admin"),
         currentUser: user,
       });
       // console.log(user);
+    }
+
+    if(user && user.role){
+      this.setState({
+        showUserBoard: user.role.includes("user"),
+        showAdminPages: user.role.includes("admin"),
+      })
     }
     
     eventBus.on("logout", () => {
