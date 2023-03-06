@@ -5,6 +5,9 @@ import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
 import { CreateContactDTO } from './dto/contact.dto';
 import { ValidateObjectId } from './shared/pipes/validate-object-id.pipes';
 import { UserService } from 'src/user/user.service';
+import { RolesGuard } from 'src/authentication/guard';
+import { Role } from 'src/authentication/interface/interfaces';
+import { Roles } from 'src/authentication/decorator';
     
 @Controller('contact')
 export class ContactController {
@@ -14,7 +17,8 @@ export class ContactController {
     ) {}
 
     @Post('/add')
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @Roles(Role.ADMIN)
     async addContact(@Res() res, @Body() createContactDTO: CreateContactDTO) {
         const user = (await this.userService.findById(createContactDTO.user));
         if (!user) {
@@ -46,21 +50,24 @@ export class ContactController {
     }
 
     @Get('/all')
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @Roles(Role.ADMIN)
     async getContacts(@Res() res) {
         const contacts = await this.contactService.getContacts();
         return res.status(HttpStatus.OK).json(contacts);
     }
 
     @Get('/userContacts')
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @Roles(Role.ADMIN)
     async getUserContacts(@Res() res, @Query('userID', new ValidateObjectId()) userID) {
         const contacts = await this.contactService.getUserContacts(userID);
         return res.status(HttpStatus.OK).json(contacts);
     }
 
     @Put('/edit')
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @Roles(Role.ADMIN)
     async editContact(@Res() res, @Query('contactID', new ValidateObjectId()) contactID, @Body() createContactDTO: CreateContactDTO){
         const editedContact = await this.contactService.editContact(contactID, createContactDTO);
         if (!editedContact) {
@@ -73,7 +80,8 @@ export class ContactController {
     }
     
     @Delete('/delete')
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @Roles(Role.ADMIN)
     async deleteContact(@Res() res,  @Query('contactID', new ValidateObjectId()) contactID) {
         const deletedContact = await this.contactService.deleteContact(contactID);
         if (!deletedContact) {
